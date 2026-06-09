@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Goethe B2 Hören</title>
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    background: white;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 10px;
+}
+
+canvas {
+    border: 1px solid #ccc;
+}
+
+button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+</style>
+</head>
+<body>
+
+<h1>Goethe B2 Hören</h1>
+
+<canvas id="sheet" width="1000" height="800"></canvas>
+
+<br>
+
+<button onclick="resetAnswers()">Reset</button>
+
+<script>
+
+const canvas = document.getElementById("sheet");
+const ctx = canvas.getContext("2d");
+
+const boxes = [];
+const selected = {};
+
+function drawSection(x1, y1, x2, y2, title) {
+
+    ctx.strokeRect(
+        x1,
+        y1,
+        x2 - x1,
+        y2 - y1
+    );
+
+    ctx.font = "bold 16px Arial";
+
+    ctx.fillText(
+        title,
+        x1 + 20,
+        y1 + 20
+    );
+}
+
+function drawQuestion(x, y, questionNumber, options) {
+
+    ctx.font = "12px Arial";
+
+    ctx.fillText(
+        questionNumber,
+        x,
+        y + 12
+    );
+
+    const startX = x + 30;
+
+    options.forEach((option, idx) => {
+
+        const boxX = startX + idx * 40;
+
+        ctx.font = "10px Arial";
+
+        ctx.fillText(
+            option,
+            boxX + 6,
+            y - 8
+        );
+
+        ctx.strokeRect(
+            boxX,
+            y,
+            20,
+            20
+        );
+
+        boxes.push({
+            x: boxX,
+            y: y,
+            width: 20,
+            height: 20,
+            question: questionNumber,
+            option: option
+        });
+    });
+}
+
+function redraw() {
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    boxes.length = 0;
+
+    // ==================================================
+    // TEIL 1
+    // ==================================================
+
+    drawSection(
+        20,
+        20,
+        420,
+        360,
+        "Teil 1"
+    );
+
+    drawQuestion(50, 80, 1, ["R","F"]);
+    drawQuestion(50,125, 2, ["a","b","c"]);
+    drawQuestion(50,170, 3, ["R","F"]);
+    drawQuestion(50,215, 4, ["a","b","c"]);
+    drawQuestion(50,260, 5, ["R","F"]);
+    drawQuestion(50,305, 6, ["a","b","c"]);
+
+    drawQuestion(220, 80, 7, ["R","F"]);
+    drawQuestion(220,125, 8, ["a","b","c"]);
+    drawQuestion(220,170, 9, ["R","F"]);
+    drawQuestion(220,215,10, ["a","b","c"]);
+
+    // ==================================================
+    // TEIL 2
+    // ==================================================
+
+    drawSection(
+        450,
+        20,
+        850,
+        340,
+        "Teil 2"
+    );
+
+    for(let q = 11; q <= 16; q++) {
+
+        drawQuestion(
+            480,
+            80 + ((q - 11) * 40),
+            q,
+            ["a","b","c"]
+        );
+    }
+
+    // ==================================================
+    // TEIL 3
+    // ==================================================
+
+    drawSection(
+        20,
+        360,
+        420,
+        760,
+        "Teil 3"
+    );
+
+    for(let q = 17; q <= 22; q++) {
+
+        drawQuestion(
+            50,
+            420 + ((q - 17) * 40),
+            q,
+            ["a","b","c"]
+        );
+    }
+
+    // ==================================================
+    // TEIL 4
+    // ==================================================
+
+    drawSection(
+        450,
+        360,
+        850,
+        760,
+        "Teil 4"
+    );
+
+    for(let q = 23; q <= 30; q++) {
+
+        drawQuestion(
+            470,
+            420 + ((q - 23) * 40),
+            q,
+            ["a","b","c"]
+        );
+    }
+
+    // iscrtaj sve selekcije
+
+    Object.values(selected).forEach(answer => {
+
+        ctx.font = "bold 14px Arial";
+
+        ctx.fillText(
+            "X",
+            answer.x + 5,
+            answer.y + 15
+        );
+    });
+}
+
+canvas.addEventListener("click", event => {
+
+    const rect = canvas.getBoundingClientRect();
+
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    for(const box of boxes) {
+
+        const inside =
+            mouseX >= box.x &&
+            mouseX <= box.x + box.width &&
+            mouseY >= box.y &&
+            mouseY <= box.y + box.height;
+
+        if(!inside)
+            continue;
+
+        selected[box.question] = {
+            x: box.x,
+            y: box.y,
+            option: box.option
+        };
+
+        console.log(
+            box.question,
+            box.option
+        );
+
+        redraw();
+
+        break;
+    }
+});
+
+function resetAnswers() {
+
+    Object.keys(selected).forEach(key => {
+        delete selected[key];
+    });
+
+    redraw();
+}
+
+redraw();
+
+</script>
+
+</body>
+</html>
